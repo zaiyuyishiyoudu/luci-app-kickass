@@ -1,0 +1,185 @@
+#!/bin/sh
+COT=0
+while [ $COT -le 9 ] #执行循环数
+do
+COT=`expr $COT + 1` #如不被中断总共循环10次
+
+		#获取中断配置
+		stop=(`cat /usr/share/kickass/stop | grep -c "1"`)
+
+		if [[ "1" = "$stop" ]]; then
+
+		echo "$time 嗯～ 好累啊，休息会儿！" >> /tmp/log/kickass.log
+
+		#中断循环
+		break;
+
+		fi
+
+		#i=已运行循环数减1 因为无线是以0开始排序的 减1是为了让初次输出结果为0以对应无线排序
+		((i=$COT-1))
+
+		#获取系统时间
+		system=(`date +%f`)
+		time=${system}
+
+		#用于获取无线网卡数量 原理：判断无线配置“wireless”中有几个“ssid”热拔插usb无线网卡易出错
+		a=(`cat /etc/config/wireless | grep -c "ssid"`)
+
+		#用于获取无线网卡数量 原理：通过ifconfig判断无线带有wlan的条目数量
+		b=(`ifconfig -a | grep 'wlan' | sort -u | wc -l`)
+
+		#再三确认条件，用于判断无线条目是否真实存在
+		wa=(`ifconfig -a | grep 'wlan0' | sort -u | wc -l`)
+		wb=(`ifconfig -a | grep 'wlan1' | sort -u | wc -l`)
+		wc=(`ifconfig -a | grep 'wlan2' | sort -u | wc -l`)
+		wd=(`ifconfig -a | grep 'wlan3' | sort -u | wc -l`)
+		we=(`ifconfig -a | grep 'wlan4' | sort -u | wc -l`)
+		wf=(`ifconfig -a | grep 'wlan5' | sort -u | wc -l`)
+		wg=(`ifconfig -a | grep 'wlan6' | sort -u | wc -l`)
+		wh=(`ifconfig -a | grep 'wlan7' | sort -u | wc -l`)
+		wi=(`ifconfig -a | grep 'wlan8' | sort -u | wc -l`)
+		wj=(`ifconfig -a | grep 'wlan9' | sort -u | wc -l`)
+
+		if [[ "$b" = "0" ]]; then
+		#不存在无线或暂时检测不到则直接跳到回调，这往往是因为启动时驱动没有加载成功所致
+		#建立检测记录循环检测10次后仍然检测不到则报错
+		mkdir -p /tmp/kickass/
+		echo "1" >> /tmp/kickass/Record
+		exec bash /usr/share/kickass/Callback
+		else
+		#判断该脚本文件是否存在
+		if [ -f "/tmp/kickass/wlan$i" ];then
+		#存在时的命令或*
+		#暂停延时，此处只是为了防止运行错误毫无意义
+		sleep 0
+		else
+		#不存在时的命令或*
+		#建立用于 wlan$i 的无线剔除脚本并写入日志
+		#将脚本范例中的"z"网卡序号动态修改成已挂载网卡序号并保持为wlan*,取循环数
+		mkdir -p /tmp/kickass/
+		cat /usr/share/kickass/Example | tr "z" "$i" > /tmp/kickass/wlan$i
+		echo "$time 建立用于 wlan$i 的无线剔除脚本" >> /var/log/kickass.log
+
+		fi
+		fi
+
+		# bash /usr/share/kickass/wlan$i
+		#判断条件，当无线网卡数量等于一
+		if [[ "$b" = "1" ]]; then
+		#判断条件成立，执行第一个脚本
+		if [[ "$i" = "0" ]]; then
+		#判断条件wlan0是否真实存在
+		if [[ "1" = "$wa" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+		else
+		#判断条件，当无线网卡数量大于一
+		if [[ "$b" > "1" ]]; then
+		#判断条件成立，执行第一个脚本
+		if [[ "$i" = "0" ]]; then
+		#判断条件wlan0是否真实存在
+		if [[ "1" = "$wa" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+fi
+		#判断条件，当无线网卡数量等于二
+		if [[ "$b" = "2" ]]; then
+		#判断条件成立，执行第二个脚本
+		if [[ "$i" = "1" ]]; then
+		#判断条件wlan1是否真实存在
+		if [[ "1" = "$wb" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+		#判断条件，当无线网卡数量等于三
+		if [[ "$b" = "3" ]]; then
+		#判断条件成立，执行第三个脚本
+		if [[ "$i" = "2" ]]; then
+		#判断条件wlan2是否真实存在
+		if [[ "1" = "$wc" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+		#判断条件，当无线网卡数量等于四
+		if [[ "$b" = "4" ]]; then
+		#判断条件成立，执行第四个脚本
+		if [[ "$i" = "3" ]]; then
+		#判断条件wlan3是否真实存在
+		if [[ "1" = "$wd" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+		#判断条件，当无线网卡数量等于五
+		if [[ "$b" = "5" ]]; then
+		#判断条件成立，执行第五个脚本
+		if [[ "$i" = "4" ]]; then
+		#判断条件wlan4是否真实存在
+		if [[ "1" = "$we" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+		#判断条件，当无线网卡数量等于六
+		if [[ "$b" = "6" ]]; then
+		#判断条件成立，执行第六个脚本
+		if [[ "$i" = "5" ]]; then
+		#判断条件wlan5是否真实存在
+		if [[ "1" = "$wf" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+		#判断条件，当无线网卡数量等于七
+		if [[ "$b" = "7" ]]; then
+		#判断条件成立，执行第七个脚本
+		if [[ "$i" = "6" ]]; then
+		#判断条件wlan6是否真实存在
+		if [[ "1" = "$wg" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+		#判断条件，当无线网卡数量等于八
+		if [[ "$b" = "8" ]]; then
+		#判断条件成立，执行第八个脚本
+		if [[ "$i" = "7" ]]; then
+		#判断条件wlan7是否真实存在
+		if [[ "1" = "$wh" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+		#判断条件，当无线网卡数量等于九
+		if [[ "$b" = "9" ]]; then
+		#判断条件成立，执行第九个脚本
+		if [[ "$i" = "8" ]]; then
+		#判断条件wlan8是否真实存在
+		if [[ "1" = "$wi" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+		#判断条件，当无线网卡数量等于十
+		if [[ "$b" = "10" ]]; then
+		#判断条件成立，执行第十个脚本
+		if [[ "$i" = "9" ]]; then
+		#判断条件wlan0是否真实存在
+		if [[ "1" = "$wj" ]]; then
+		bash /tmp/kickass/wlan$i
+fi
+fi
+fi
+		#判断条件成立，执行回调脚本
+		if [[ "$COT" = "$a" ]]; then
+		exec bash /usr/share/kickass/Callback
+fi
+
+done 
+

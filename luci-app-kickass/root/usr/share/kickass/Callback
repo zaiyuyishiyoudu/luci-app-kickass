@@ -1,0 +1,38 @@
+#!/bin/sh
+COT=0
+while [ $COT -le 0 ] #执行循环数
+do
+COT=`expr $COT + 1` #共循环1次
+
+		#用于获取无线网卡数量 原理：判断无线配置“wireless”中有几个“ssid”热拔插usb无线网卡易出错
+		a=(`cat /etc/config/wireless | grep -c "ssid"`)
+
+		#判断检测次数
+		if [ -f "/tmp/kickass/Record" ];then
+		Record=(`cat /tmp/kickass/Record | grep -c "1"`)
+
+		if [[ "$Record" = "10" ]]; then
+		#获取系统时间
+		system=(`date +%f`)
+		time=${system}
+
+		#判断条件成立，停止脚本 最终检测 万一发生奇迹呢
+		if [[ "$a" = "0" ]]; then
+		wireless=0
+		echo "$time -----------经过10次检测后---------" >> /var/log/kickass.log
+		echo "$time -----------没有发现无线网卡---------" >> /var/log/kickass.log
+		echo "$time ---------请断电后接入无线网卡------" >> /var/log/kickass.log
+fi
+fi
+		#无线等于零
+		if [[ "$wireless" = "0" ]]; then
+		rm -f /tmp/kickass/Record
+		exec echo "$time -----------脚本已停止运行-----------" >> /var/log/kickass.log
+fi
+fi
+		#判断条件成立，跳转至工作主脚本
+		if [[ "$COT" = "1" ]]; then
+		exec bash /usr/share/kickass/Main
+fi
+
+done 

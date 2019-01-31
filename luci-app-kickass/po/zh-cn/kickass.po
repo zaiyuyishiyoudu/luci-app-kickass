@@ -1,0 +1,15 @@
+msgid "kickass"
+msgstr "剔除日志"
+
+msgid "Kickass Log"
+msgstr "无线剔除日志"
+
+msgid "Weak signal remove"
+msgstr "弱信号剔除"
+
+msgid "Strong signal remove"
+msgstr "强信号剔除"
+
+
+
+

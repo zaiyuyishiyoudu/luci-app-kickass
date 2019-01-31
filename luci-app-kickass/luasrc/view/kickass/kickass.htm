@@ -1,0 +1,6 @@
+<%+header%>
+<h2 name="title"><%:Kickass Log%></h2>
+<div id="kickass_log">
+<textarea  style="width: 100%" readonly="readonly" wrap="off" rows="<%=content:cmatch("\n")+1%>" id="content_id"><%=content:pcdata()%></textarea>
+</div>
+<%+footer%>

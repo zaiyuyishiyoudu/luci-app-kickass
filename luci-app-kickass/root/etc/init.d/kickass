@@ -1,0 +1,20 @@
+#!/bin/sh /etc/rc.common
+START=50
+
+start()
+{
+	exec bash /usr/share/kickass/Main &
+}
+
+stop()
+{
+	echo "1" >> /usr/share/kickass/stop
+	sleep 1
+	cat /usr/share/kickass/stop | sed '$d' > /usr/share/kickass/stop
+}
+
+restart()
+{
+	/etc/init.d/kickass stop
+	/etc/init.d/kickass start
+}
