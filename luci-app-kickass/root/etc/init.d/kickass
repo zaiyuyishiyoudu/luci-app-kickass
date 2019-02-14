@@ -8,9 +8,9 @@ start()
 
 stop()
 {
-	echo "1" >> /usr/share/kickass/stop
+	echo "1" >> /tmp/kickass/stop
 	sleep 1
-	cat /usr/share/kickass/stop | sed '$d' > /usr/share/kickass/stop
+	rm -rf /tmp/kickass/stop
 }
 
 restart()
