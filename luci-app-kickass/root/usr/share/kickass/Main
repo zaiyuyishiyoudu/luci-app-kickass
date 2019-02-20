@@ -50,10 +50,18 @@ fi
 		if [[ "$aa" = "0" ]]; then
 		out=0
 		else
-		out=$c
-fi
+		if [[ "$aa" = "$c" ]]; then
+		out=$aa
 		else
 		out=$c
+fi
+fi
+		else
+		if [[ "$aa" = "$c" ]]; then
+		out=$aa
+		else
+		out=$c
+fi
 fi
 
 #----------------------------------------条件报错-----------------------------------------
