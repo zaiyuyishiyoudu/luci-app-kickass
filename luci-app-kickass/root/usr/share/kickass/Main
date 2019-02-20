@@ -53,14 +53,22 @@ fi
 		if [[ "$aa" = "$c" ]]; then
 		out=$aa
 		else
+		if [[ "$aa" > "$c" ]]; then
+		out=$aa
+		else
 		out=$c
+fi
 fi
 fi
 		else
 		if [[ "$aa" = "$c" ]]; then
 		out=$aa
 		else
+		if [[ "$aa" > "$c" ]]; then
+		out=$aa
+		else
 		out=$c
+fi
 fi
 fi
 
