@@ -25,16 +25,35 @@ fi
 		#用于获取无线网卡数量 原理：通过ifconfig判断无线带有wlan的条目数量
 		a=(`ifconfig -a | grep 'wlan' | sort -u | wc -l`)
 
+		#写入首次无线网卡数量信息 防止命令失效
+		if [ ! -f "/tmp/kickass/info" ];then
+		echo "$a" >> /tmp/kickass/info
+fi
+
 		#用于获取无线网卡数量 原理：判断无线配置“wireless”中有几个“ssid”热拔插usb无线网卡易出错
 		b=(`cat /etc/config/wireless | grep -c "ssid"`)
 
 		((aa=$a+0))
 		((ab=$b+0))
 
-		if [[ "$aa" = "$ab" ]]; then
-		out=$b
+		#用于获取首次无线网卡数量信息
+		if [[ "$COT" = "1" ]]; then
+		c=$aa
 		else
-		out=$a
+		if [ -f "/tmp/kickass/info" ];then
+		c=(`cat /tmp/kickass/info`)
+fi
+fi
+
+		#用于控制无线网卡数量信息输出
+		if [[ "$COT" = "1" ]]; then
+		if [[ "$aa" = "0" ]]; then
+		out=0
+		else
+		out=$c
+fi
+		else
+		out=$c
 fi
 
 #----------------------------------------条件报错-----------------------------------------
@@ -80,6 +99,7 @@ fi
 
 #----------------------------------------任务分发-----------------------------------------
 
+		if [[ "$aa" = "$ab" ]]; then
 		if [[ "$wa" = "1" ]]; then
 		#判断该脚本文件是否存在
 		if [ -f "/tmp/kickass/wlan0" ];then
@@ -140,7 +160,9 @@ fi
 		bash /tmp/kickass/wlan9
 fi
 fi
+fi
 
+#---------------------------------------重执脚本-----------------------------------------
 		#回调
 		if [[ "$out" = "0" ]]; then
 		sleep 0
