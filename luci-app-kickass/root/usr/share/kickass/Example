@@ -24,196 +24,86 @@ do
 		rx=${rxlist[$i]}
 
 		#防止无配置时乱踢
-		((aaa=$consult+0))
-		((bbb=$strong+0))
+		((a=$consult+0))
+		((b=$strong+0))
+
+#--------------------------负数反转--------------------------
 
 		#负数转正数 弱信号
-		((ccc=100$aaa))
-		((ddd=100-$ccc))
-
-		#弱信号滑动输出
-		if [[ "$ddd" = "9" ]]; then
-		ab=8
-		else
-		if [[ "$ddd" = "8" ]]; then
-		ab=7
-		else
-		if [[ "$ddd" = "7" ]]; then
-		ab=6
-		else
-		if [[ "$ddd" = "6" ]]; then
-		ab=5
-		else
-		if [[ "$ddd" = "5" ]]; then
-		ab=4
-		else
-		if [[ "$ddd" = "4" ]]; then
-		ab=3
-		else
-		if [[ "$ddd" = "3" ]]; then
-		ab=2
-		else
-		if [[ "$ddd" = "2" ]]; then
-		ab=1
-		else
-		if [[ "$ddd" = "1" ]]; then
-		ab=0
-		else
-		ab=$ddd
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
+		((c=100$a))
+		((d=100-$c))
 
 		#负数转正数 强信号
-		((eee=100$bbb))
-		((fff=100-$eee))
-
-		#强信号滑动输出
-		if [[ "$fff" = "9" ]]; then
-		cd=90
-		else
-		if [[ "$fff" = "8" ]]; then
-		cd=9
-		else
-		if [[ "$fff" = "7" ]]; then
-		cd=8
-		else
-		if [[ "$fff" = "6" ]]; then
-		cd=7
-		else
-		if [[ "$fff" = "5" ]]; then
-		cd=6
-		else
-		if [[ "$fff" = "4" ]]; then
-		cd=5
-		else
-		if [[ "$fff" = "3" ]]; then
-		cd=4
-		else
-		if [[ "$fff" = "2" ]]; then
-		cd=3
-		else
-		if [[ "$fff" = "1" ]]; then
-		cd=2
-		else
-		cd=$fff
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
+		((e=100$b))
+		((f=100-$e))
 
 		#负数转正数 动态信号
-		((ggg=100$rx))
-		((hhh=100-$ggg))
+		((g=100$rx))
+		((h=100-$g))
 
-		#动态信号滑动输出
-		if [[ "$hhh" = "9" ]]; then
-		ef=9
-		else
-		if [[ "$hhh" = "8" ]]; then
-		ef=8
-		else
-		if [[ "$hhh" = "7" ]]; then
-		ef=7
-		else
-		if [[ "$hhh" = "6" ]]; then
-		ef=6
-		else
-		if [[ "$hhh" = "5" ]]; then
-		ef=5
-		else
-		if [[ "$hhh" = "4" ]]; then
-		ef=4
-		else
-		if [[ "$hhh" = "3" ]]; then
-		ef=3
-		else
-		if [[ "$hhh" = "2" ]]; then
-		ef=2
-		else
-		if [[ "$hhh" = "1" ]]; then
-		ef=1
-		else
-		ef=90
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
-		fi
+#--------------------------单双判断--------------------------
 
 		#判断单双数 弱信号
-		iii=(`echo "$ddd" | grep '$' | wc -L`)
+		i=(`echo "$d" | grep '$' | wc -L`)
 
 		#判断单双数 强信号
-		jjj=(`echo "$fff" | grep '$' | wc -L`)
+		j=(`echo "$f" | grep '$' | wc -L`)
 
 		#判断单双数 动态信号
-		kkk=(`echo "$hhh" | grep '$' | wc -L`)
-		if [[ "$kkk" = "2" ]]; then
-		kka=5
-		else
-		kka=3
-		fi
+		k=(`echo "$h" | grep '$' | wc -L`)
 
-		# 弱信号单双互对 防止数学偏科
-		((lll=$iii+$kka))
-		#当弱信号阀值为双数动态为单数
-		if [[ "$lll" = "5" ]]; then
-		# 弱信号滑动输入
-		mmm=$ab
-		else
-		#当弱信号阀值为单数动态为双数
-		if [[ "$lll" = "6" ]]; then
-		# 动态信号滑动输入
-		mmm=$ef
-		else
-		#当两者皆为单数或双数
-		mmm=$hhh
-		fi
-		fi
+#--------------------------单双对比--------------------------
 
-		# 强信号单双互对 防止数学偏科
-		((nnn=$jjj+$kka))
-		#当强信号阀值为双数动态为单数
-		if [[ "$nnn" = "5" ]]; then
-		# 强信号滑动输入
-		ooo=$cd
+		#单数对比 弱信号
+		if [[ "1" = "$k" ]]; then
+		if [[ "$i" = "1" ]]; then
+		if [[ "$d" < "$h" ]]; then
+		o=1
 		else
-		#当强信号阀值为单数动态为双数
-		if [[ "$nnn" = "6" ]]; then
-		# 动态信号滑动输入
-		ooo=$ef
+		o=0
+fi
+fi
+		#单数对比 强信号
+		if [[ "$j" = "1" ]]; then
+		if [[ "$f" > "$h" ]]; then
+		p=1
 		else
-		#当两者皆为单数或双数
-		ooo=$hhh
-		fi
-		fi
+		p=0
+fi
+fi
+		else
+		#双数对比 弱信号
+		if [[ "$i" < "$k" ]]; then
+		o=1
+		else
+		if [[ "$i" = "$k" ]]; then
+		if [[ "$d" < "$h" ]]; then
+		o=1
+		else
+		o=0
 
+fi
+fi
+fi
 
-		#无配置不工作
-		if [[ "$aaa" = "0" ]]; then
-		bgm=$mmm
+		#双数对比 强信号
+		if [[ "$j" > "$k" ]]; then
+		p=1
 		else
-		bgm=$ddd
-		fi
+		if [[ "$j" = "$k" ]]; then
+		if [[ "$f" > "$h" ]]; then
+		p=1
+		else
+		p=0
+
+fi
+fi
+fi
+fi
+
 
 		#信号强度比较 弱信号剔除
-		if [[ "$mmm" > "$bgm" ]]; then
+		if [[ "$o" = "1" ]]; then
 		#端茶送客，人走茶凉！有朋自远方来 吾之送走乎 闭门谢客叁秒 承蒙再临叨扰
 		ubus call hostapd.wlanz del_client '{"addr":"'"$mac"'", "reason": 5, "deauth": True, "ban_time": 3000}'
 		echo "[ 弱信号 ]$time 启禀主人：wlanz|$mac $rx已经被撵走了呢，么么哒！" >> /var/log/kickass.log
@@ -222,19 +112,17 @@ do
 
 		#阀值比较 中立不作操作
 		if [[ "$consult" = "$strong" ]]; then
-
-		sleep 0
-
+		q=0
 		else
 		#无配置不工作
-		if [[ "$bbb" = "0" ]]; then
-		bgf=$ooo
+		if [[ "$b" = "0" ]]; then
+		q=0
 		else
-		bgf=$fff
+		q=$p
 		fi
 
 		#信号强度比较 强信号剔除
-		if [[ "$ooo" < "$bgf" ]]; then
+		if [[ "$q" = "1" ]]; then
 		#端茶送客，人走茶凉！有朋自远方来 吾之送走乎 闭门谢客叁秒 承蒙再临叨扰
 		ubus call hostapd.wlanz del_client '{"addr":"'"$mac"'", "reason": 5, "deauth": True, "ban_time": 3000}'
 		echo "[ 强信号 ]$time 启禀主人：wlanz|$mac $rx已经被赶跑了呢，么么哒！" >> /var/log/kickass.log
