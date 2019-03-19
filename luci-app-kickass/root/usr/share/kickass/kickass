@@ -79,56 +79,38 @@ do
 
 #--------------------------单双对比--------------------------
 
-		#单数对比 弱信号
-		if [[ "1" = "$k" ]]; then
-		if [[ "$I" = "1" ]]; then
-		if [[ "$d" < "$h" ]]; then
-		o=1
-		else
-		o=0
-fi
-fi
-		#单数对比 强信号
-		if [[ "$j" = "1" ]]; then
-		if [[ "$f" > "$h" ]]; then
-		p=1
-		else
-		p=0
-fi
-fi
-		else
-		#双数对比 弱信号
-		if [[ "$I" < "$k" ]]; then
-		o=1
-		else
+		#弱信号与动态信号
 		if [[ "$I" = "$k" ]]; then
 		if [[ "$d" < "$h" ]]; then
-		o=1
+		ai=1
 		else
-		o=0
-
-fi
-fi
-fi
-
-		#双数对比 强信号
-		if [[ "$j" > "$k" ]]; then
-		p=1
+		#不等数对比 弱信号与动态信号
+		if [[ "$I" < "$k" ]]; then
+		ai=1
 		else
+		ai=0
+fi
+fi
+fi
+
+		#强信号与动态信号
 		if [[ "$j" = "$k" ]]; then
 		if [[ "$f" > "$h" ]]; then
-		p=1
+		bi=1
 		else
-		p=0
+		#不等数对比 强信号与动态信号
+		if [[ "$j" > "$k" ]]; then
+		bi=1
+		else
+		bi=0
+fi
+fi
+fi
 
-fi
-fi
-fi
-fi
 
 
 		#信号强度比较 弱信号剔除
-		if [[ "$o" = "1" ]]; then
+		if [[ "$ai" = "1" ]]; then
 		#端茶送客，人走茶凉！有朋自远方来 吾之送走乎 闭门谢客叁秒 承蒙再临叨扰
 		ubus call hostapd.wlan$1 del_client '{"addr":"'"$mac"'", "reason": 5, "deauth": True, "ban_time": 3000}'
 		echo "[ 弱信号 ]$time 启禀主人：wlan$1|$mac $rx已经被撵走了呢，么么哒！" >> /tmp/log/kickass.log
@@ -136,18 +118,14 @@ fi
 		fi
 
 		#阀值比较 中立不作操作
-		if [[ "$consult" = "$strong" ]]; then
-		q=0
+		if [[ "$d" = "$f" ]]; then
+		ci=0
 		else
-		#无配置不工作
-		if [[ "$b" = "0" ]]; then
-		q=0
-		else
-		q=$p
+		ci=$bi
 		fi
 
 		#信号强度比较 强信号剔除
-		if [[ "$q" = "1" ]]; then
+		if [[ "$ci" = "1" ]]; then
 		#端茶送客，人走茶凉！有朋自远方来 吾之送走乎 闭门谢客叁秒 承蒙再临叨扰
 		ubus call hostapd.wlan$1 del_client '{"addr":"'"$mac"'", "reason": 5, "deauth": True, "ban_time": 3000}'
 		echo "[ 强信号 ]$time 启禀主人：wlan$1|$mac $rx已经被赶跑了呢，么么哒！" >> /tmp/log/kickass.log
@@ -189,6 +167,14 @@ fi
 		#break;
 fi
 
+		#将脚本丢到内存
+		if [ ! -d "/tmp/kickass/" ];then
+		mkdir /tmp/kickass/
+		else
+		if [ ! -f "/tmp/kickass/kickass" ];then
+		cp /usr/share/kickass/kickass /tmp/kickass/kickass
+fi
+fi
 #----------------------------------------无线数量-----------------------------------------
 
 		#用于获取无线网卡数量 原理：通过ifconfig判断无线带有wlan的条目数量
@@ -216,11 +202,13 @@ fi
 		detection $COT $out $c
 		else
 		if [[ "$COT" = "$out" ]]; then
-		info
+		#info
+		exec bash /tmp/kickass/kickass
 		else
 		if [[ "$COT" > "$out" ]]; then
 		detection $COT $out $c
-		info
+		#info
+		exec bash /tmp/kickass/kickass
 
 fi
 fi
