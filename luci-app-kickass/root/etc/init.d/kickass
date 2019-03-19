@@ -3,7 +3,7 @@ START=50
 
 start()
 {
-	exec bash /usr/share/kickass/Main &
+	exec bash /usr/share/kickass/kickass 1 &
 }
 
 stop()
@@ -15,6 +15,6 @@ stop()
 
 restart()
 {
-	/etc/init.d/kickass stop
-	/etc/init.d/kickass start
+	stop
+	start
 }

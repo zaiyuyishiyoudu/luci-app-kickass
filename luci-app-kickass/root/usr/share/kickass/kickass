@@ -1,0 +1,236 @@
+#!/bin/bash
+
+	#获取系统时间
+	time=(`date +%f`)
+
+detection()
+{
+		if [[ "$1" = "60" ]]; then
+		if [[ "$2" = "0" ]]; then
+		echo "$time -----------经过60次检测后---------" >> /var/log/kickass.log
+		echo "$time ---------依旧没有发现无线网卡------" >> /var/log/kickass.log
+		echo "$time ---------请断电后接入无线网卡------" >> /var/log/kickass.log
+		echo "$time 确认过眼神，你是个用不起无线网卡的人！" >> /var/log/kickass.log
+		echo "$time -----------脚本已停止运行----------" >> /var/log/kickass.log
+fi
+		else
+		if [[ "$3" = "$2" ]]; then
+		sleep 0
+		else
+		if [[ "$2" > "0" ]]; then
+		echo "$time -----------经过第$1次检测-----------" >> /var/log/kickass.log
+		echo "$time -----------共发现$2个无线-----------" >> /var/log/kickass.log
+fi
+fi
+fi
+}
+
+command()
+{
+#无限循环
+while true;
+do
+
+	#获取mac与信号衰减
+	maclist=(`iw dev wlan$1 station dump | grep "Station" | cut -f 2 -s -d " "`)
+	rxlist=(`iw dev wlan$1 station dump | grep "signal:" | cut -f 3 -s -d " "`)
+	#maclist=(`iwinfo wlan$1 assoclist | grep "dBm" | cut -f 1 -s -d " "`)
+	#rxlist=(`iwinfo wlan$1 assoclist | grep "dBm" | cut -f 3 -s -d " "`)
+	#获取设定参考值
+	consult=(`uci -q get wireless.default_radio$1.weak`)
+	strong=(`uci -q get wireless.default_radio$1.strong`)
+	#这个不知道应该是控制输出
+	len=${#maclist[@]}
+	for((i=0;i<$len;i++))
+	do
+
+		rx=""
+		mac=${maclist[$i]}
+		rx=${rxlist[$i]}
+
+		#防止无配置时乱踢
+		((a=$consult+0))
+		((b=$strong+0))
+
+#--------------------------负数反转--------------------------
+
+		#负数转正数 弱信号
+		((c=100$a))
+		((d=100-$c))
+
+		#负数转正数 强信号
+		((e=100$b))
+		((f=100-$e))
+
+		#负数转正数 动态信号
+		((g=100$rx))
+		((h=100-$g))
+
+#--------------------------单双判断--------------------------
+
+		#判断单双数 弱信号
+		I=(`echo "$d" | grep '$' | wc -L`)
+
+		#判断单双数 强信号
+		j=(`echo "$f" | grep '$' | wc -L`)
+
+		#判断单双数 动态信号
+		k=(`echo "$h" | grep '$' | wc -L`)
+
+#--------------------------单双对比--------------------------
+
+		#单数对比 弱信号
+		if [[ "1" = "$k" ]]; then
+		if [[ "$I" = "1" ]]; then
+		if [[ "$d" < "$h" ]]; then
+		o=1
+		else
+		o=0
+fi
+fi
+		#单数对比 强信号
+		if [[ "$j" = "1" ]]; then
+		if [[ "$f" > "$h" ]]; then
+		p=1
+		else
+		p=0
+fi
+fi
+		else
+		#双数对比 弱信号
+		if [[ "$I" < "$k" ]]; then
+		o=1
+		else
+		if [[ "$I" = "$k" ]]; then
+		if [[ "$d" < "$h" ]]; then
+		o=1
+		else
+		o=0
+
+fi
+fi
+fi
+
+		#双数对比 强信号
+		if [[ "$j" > "$k" ]]; then
+		p=1
+		else
+		if [[ "$j" = "$k" ]]; then
+		if [[ "$f" > "$h" ]]; then
+		p=1
+		else
+		p=0
+
+fi
+fi
+fi
+fi
+
+
+		#信号强度比较 弱信号剔除
+		if [[ "$o" = "1" ]]; then
+		#端茶送客，人走茶凉！有朋自远方来 吾之送走乎 闭门谢客叁秒 承蒙再临叨扰
+		ubus call hostapd.wlan$1 del_client '{"addr":"'"$mac"'", "reason": 5, "deauth": True, "ban_time": 3000}'
+		echo "[ 弱信号 ]$time 启禀主人：wlan$1|$mac $rx已经被撵走了呢，么么哒！" >> /tmp/log/kickass.log
+
+		fi
+
+		#阀值比较 中立不作操作
+		if [[ "$consult" = "$strong" ]]; then
+		q=0
+		else
+		#无配置不工作
+		if [[ "$b" = "0" ]]; then
+		q=0
+		else
+		q=$p
+		fi
+
+		#信号强度比较 强信号剔除
+		if [[ "$q" = "1" ]]; then
+		#端茶送客，人走茶凉！有朋自远方来 吾之送走乎 闭门谢客叁秒 承蒙再临叨扰
+		ubus call hostapd.wlan$1 del_client '{"addr":"'"$mac"'", "reason": 5, "deauth": True, "ban_time": 3000}'
+		echo "[ 强信号 ]$time 启禀主人：wlan$1|$mac $rx已经被赶跑了呢，么么哒！" >> /tmp/log/kickass.log
+
+		fi
+		fi
+	done
+
+	#中断循环
+	break;
+
+done
+}
+
+info()
+{
+COT=0
+while [ $COT -le 59 ] #执行循环数
+do
+COT=`expr $COT + 1` #如不被中断总共循环60次
+
+#----------------------------------------创建条件-----------------------------------------
+
+		#ii=已运行循环数减1 因为无线是以0开始排序的 减1是为了让初次输出结果为0以对应无线排序
+		((ii=$COT-1))
+
+		#获取中断和接收启动&重启
+
+		if [[ "$1" = "1" ]]; then
+		if [[ "$COT" = "1" ]]; then
+		rm -rf /tmp/kickass/stop
+		echo "$time 休息完了！开始工作啦！！！" >> /tmp/log/kickass.log
+
+fi
+fi
+		if [ -f "/tmp/kickass/stop" ];then
+		exec echo "$time 嗯～ 好累啊，休息会儿！！！" >> /tmp/log/kickass.log
+		#停止运行
+		#break;
+fi
+
+#----------------------------------------无线数量-----------------------------------------
+
+		#用于获取无线网卡数量 原理：通过ifconfig判断无线带有wlan的条目数量
+		a=(`ifconfig -a | grep 'wlan' | sort -u | wc -l`)
+
+		#用于获取无线网卡数量 原理：判断无线配置“wireless”中有几个“ssid”热拔插usb无线网卡易出错
+		b=(`cat /etc/config/wireless | grep -c "ssid"`)
+
+		((aa=$a+0))
+		((ab=$b+0))
+
+		#用于控制无线网卡数量信息输出
+		if [[ "$a" = "$b" ]]; then
+		out=$a
+		else
+		out=0
+fi
+
+
+#----------------------------------------任务分发-----------------------------------------
+		command $ii
+#---------------------------------------重执脚本-----------------------------------------
+		#回调
+		if [[ "$out" = "0" ]]; then
+		detection $COT $out $c
+		else
+		if [[ "$COT" = "$out" ]]; then
+		info
+		else
+		if [[ "$COT" > "$out" ]]; then
+		detection $COT $out $c
+		info
+
+fi
+fi
+fi
+
+done
+}
+
+out()
+{
+		info $1
+}
+out $1
