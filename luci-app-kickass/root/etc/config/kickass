@@ -1,0 +1,4 @@
+
+config kickass
+	option enabled '0'
+	option time '1'

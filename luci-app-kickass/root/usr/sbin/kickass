@@ -1,0 +1,43 @@
+#!/bin/sh
+# 开源驱动无线剔除脚本 by 401626436
+# 恩山无线论坛：https://www.right.com.cn/forum/?382335 半原创
+. $IPKG_INSTROOT/lib/functions.sh
+echolog() { echo -e "$(date "+%Y-%m-%d %H:%M:%S"): $1" >>/var/log/kickass.log ; }
+get_config() { config_get_bool enabled "$1" 'enabled' '0' ; config_get time "$1" 'time' '3' ; }
+config_load 'kickass' ; config_foreach get_config 'kickass'
+[ "$enabled" -gt "0" ] || exit 0 ; while : ; do
+# 无线不工作就退出
+[ -d '/var/run/hostapd' ] || exit 0
+for wlan in $(ls /var/run/hostapd 2>/dev/null | sed '/global/d') ; do
+# 存在接口才继续执行
+[ -d "/sys/class/net/$wlan" ] && {
+# 列出无线配置文件
+for hostapd in $(ls /var/run/hostapd-*.conf) ; do
+# 列出符合的接口或虚拟接口名称
+for interface in $(egrep -rnw 'interface|bss' $hostapd) ; do
+ife=$interface ; interface=${interface/*:interface=} ; interface=${interface/*:bss=}
+[ "$interface" == "$wlan" ] && { interface=${ife/:*} || interface=''
+# 在该接口配置区域找到SSID
+for ssid in $(for bssid in $(grep -rnw 'bssid' $hostapd) ; do
+bssid=${bssid/:*} ; [ "$bssid" -gt "$interface" ] && \
+sed -n ${interface},${bssid}p $hostapd | \
+grep -w 'ssid' && exit 0 ; done) ; do
+# 通过SSID列出无线uci配置信息
+wireless=$(uci -q show wireless|grep -w ${ssid/ssid=})
+# 截取命令部分读取信号阀值
+weak="$(uci -q get ${wireless/ssid*/weak})"
+high="$(uci -q get ${wireless/ssid*/high})"
+# 列出客户端MAC地址和信号强度
+maclist=$(iw dev $wlan station dump | awk '/Station/{print $2}')
+#rxlist=$(iw dev $wlan station dump | awk '/signal:/{print $2}')
+#maclist=$(iwinfo $wlan assoclist | awk '/dBm/{print $1}')
+#rxlist=$(iwinfo $wlan assoclist | awk '/dBm/{print $2}')
+for maclist in $maclist ; do
+rxlist=$(iwinfo $wlan assoclist | tr 'A-Z' 'a-z' | awk '/'$maclist'/{print $2}')
+[ "$rxlist" -le "$weak" ] && \
+ubus call hostapd.$wlan del_client '{"addr":"'"$maclist"'", "reason": 5, "deauth": True, "ban_time": 3000}' && \
+echolog "[ 弱信号 ] 启禀主人：$wlan | $maclist $rxlist 已经被撵走了呢，么么哒！"
+[ "$rxlist" -gt "$high" ] && \
+ubus call hostapd.$wlan del_client '{"addr":"'"$maclist"'", "reason": 5, "deauth": True, "ban_time": 3000}' && \
+echolog "[ 强信号 ] 启禀主人：$wlan | $maclist $rxlist 已经被赶跑了呢，么么哒！"
+sleep $time ; done ; done ; } ; done ; done ; } ; done ; done

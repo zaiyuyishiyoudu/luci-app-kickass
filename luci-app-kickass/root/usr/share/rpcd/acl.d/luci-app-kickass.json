@@ -1,0 +1,18 @@
+{
+	"luci-app-kickass": {
+		"description": "Grant UCI access for luci-app-kickass",
+		"read": {
+			"file": {
+				"/usr/bin/pgrep -f /usr/sbin/kickass": [ "exec" ],
+				"/var/log/kickass.log": [ "read" ]
+			},
+			"uci": [ "kickass" ]
+		},
+		"write": {
+			"file": {
+				"/var/log/kickass.log": [ "write" ]
+			},
+			"uci": [ "kickass" ]
+		}
+	}
+}

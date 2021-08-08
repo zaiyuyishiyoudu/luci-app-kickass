@@ -1,0 +1,31 @@
+{
+	"admin/control/kickass": {
+		"title": "Wireless rejection",
+		"order": 60,
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-app-kickass" ],
+			"uci": { "kickass": true }
+		}
+	},
+
+	"admin/control/kickass/general": {
+		"title": "General Settings",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "kickass/general"
+		}
+	},
+
+	"admin/control/kickass/log": {
+		"title": "Culling logs",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "kickass/log"
+		}
+	}
+}

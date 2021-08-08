@@ -1,15 +1,26 @@
-msgid "kickass"
+msgid "Wireless rejection"
+msgstr "无线剔除"
+
+msgid "Use wireless culling"
+msgstr "使用无线剔除"
+
+msgid "Culling logs"
 msgstr "剔除日志"
 
-msgid "Kickass Log"
-msgstr "无线剔除日志"
+msgid "Please go here to enable the wireless rejection monitoring script"
+msgstr "请到<a style=\"cursor:pointer;color: #1E90FF;\" onclick=\"window.open('/cgi-bin/luci/admin/control/kickass','_self')\">此处</a>启用无线剔除监听脚本"
 
-msgid "Weak signal remove"
-msgstr "弱信号剔除"
+msgid "Weak signal threshold"
+msgstr "弱信号阀值"
 
-msgid "Strong signal remove"
-msgstr "强信号剔除"
+msgid "Disconnect wireless terminals below this value (0 is disabled)"
+msgstr "断开低于此值的无线终端(0为禁用)"
 
+msgid "Strong signal threshold"
+msgstr "强信号阀值"
 
+msgid "Disconnect wireless terminals higher than this value (0 is disabled)"
+msgstr "断开高于此值的无线终端(0为禁用)"
 
-
+msgid "Please go to wireless setting threshold"
+msgstr "请到<a style=\"cursor:pointer;color: #1E90FF;\" onclick=\"window.open('/cgi-bin/luci/admin/network/wireless','_self')\">无线</a>设置阀值"
