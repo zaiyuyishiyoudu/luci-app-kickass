@@ -1,5 +1,3 @@
-微信号 other---shore
-
 ![kickass](https://github.com/zaiyuyishiyoudu/luci-app-kickass/blob/master/screenshot.png)
 
 ![kickass](https://github.com/zaiyuyishiyoudu/luci-app-kickass/blob/master/screenshot2.png)
